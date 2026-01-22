@@ -1,135 +1,110 @@
-const API_KEY = "78b1a5b05e1ce8111e7dfe38dbd7c0fb";
+const API_KEY = "e8fc51ff3a514fe1bed160008261101 ";
 
-/* ---------- Date & Time ---------- */
+/* ===== Date & Time ===== */
 function updateDateTime() {
   const now = new Date();
-  const options = {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-  };
-
   document.getElementById("dateText").innerText =
-    now.toLocaleString("en-US", options);
+    now.toLocaleString("en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
 }
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
-
-/* ---------- Main Weather Function ---------- */
-async function getWeather(lat, lon) {
-
-//   let url = "";
-
-  if (lat && lon) {
-    // Current location se
-    url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
-  } else {
-    // City search se
-    const city = document.getElementById("cityInput").value;
-    url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${API_KEY}`;
+/* ===== Main Fetch ===== */
+function getWeather(city = null) {
+  if (!city) {
+    city = document.getElementById("cityInput").value;
   }
+  if (!city) return alert("Enter city name");
 
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (data.cod !== "200") {
-    alert("City not found");
-    return;
-  }
-
-  const current = data.list[0];
-
-  document.getElementById("cityName").innerText =`${data.city.name}, ${data.city.country}`;
-  document.getElementById("temp").innerText = Math.round(current.main.temp) + "°";
-  document.getElementById("feels").innerText = Math.round(current.main.feels_like) + "°";
-  document.getElementById("humidity").innerText = current.main.humidity + "%";
-  document.getElementById("wind").innerText = current.wind.speed + " km/h";
-  document.getElementById("rain").innerText = (current.rain?.["3h"] || 0) + " mm";
-
-  // weather icon ke liye
-  const iconCode = current.weather[0].icon;
-  document.getElementById("weatherIcon").src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-
-  loadHourly(data.list);
-  loadDaily(data.list);
-}
-
-/* ---------- One Call API (7 Days) ---------- */
-function fetchOneCall(lat, lon) {
-  const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
-
-  fetch(url)
+  fetch(
+    `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${city}&days=7&aqi=no&alerts=no`
+  )
     .then(res => res.json())
     .then(data => {
-      updateCurrentUI(data.current);
-      loadDaily7Days(data.daily);
-      loadHourlyFromOneCall(data.hourly);
-    });
+      updateCurrent(data);
+      loadHourly(data);
+      loadDaily(data);
+    })
+    .catch(() => alert("Weather fetch failed"));
 }
 
+/* ===== Current Weather ===== */
+function updateCurrent(data) {
+  const current = data.current;
+  const location = data.location;
 
-// hourly ke liye
-function loadHourly(list) {
+  document.getElementById("cityName").innerText =
+    `${location.name}, ${location.country}`;
+
+  document.getElementById("temp").innerText = Math.round(current.temp_c) + "°";
+  document.getElementById("feels").innerText = Math.round(current.feelslike_c) + "°";
+  document.getElementById("humidity").innerText = current.humidity + "%";
+  document.getElementById("wind").innerText = current.wind_kph + " km/h";
+  document.getElementById("rain").innerText = current.precip_mm + " mm";
+
+  document.getElementById("weatherIcon").src =
+    "https:" + current.condition.icon;
+}
+
+/* ===== Hourly Forecast (Real 1 hour) ===== */
+function loadHourly(data) {
   const container = document.getElementById("hourly");
   container.innerHTML = "";
 
-  list.slice(0, 6).forEach(item => {
-    const time = new Date(item.dt_txt).getHours();
+  const hours = data.forecast.forecastday[0].hour;
+  const nowHour = new Date().getHours();
+
+  const upcoming = hours.filter(h =>
+    new Date(h.time).getHours() >= nowHour
+  ).slice(0, 8);
+
+  upcoming.forEach(h => {
+    const date = new Date(h.time);
+    let hour = date.getHours();
+    let ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+
     container.innerHTML += `
       <div class="flex justify-between bg-gray-800 p-2 rounded">
-        <span>${time}:00</span>
-        <span>${Math.round(item.main.temp)}°</span>
+        <span>${hour} ${ampm}</span>
+        <span>${Math.round(h.temp_c)}°</span>
       </div>`;
   });
 }
 
-// daily ke liye 
-function loadDaily(list) {
+/* ===== 7 Day Forecast ===== */
+function loadDaily(data) {
   const container = document.getElementById("daily");
   container.innerHTML = "";
 
-  const days = {};
-  list.forEach(item => {
-    const day = item.dt_txt.split(" ")[0];
-    if (!days[day]) days[day] = item;
-  });
-
-  Object.values(days).slice(0, 7).forEach(item => {
-    const date = new Date(item.dt_txt);
+  data.forecast.forecastday.forEach(day => {
+    const date = new Date(day.date);
     const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-    const icon = item.weather[0].icon;
+    const icon = day.day.condition.icon;
 
     container.innerHTML += `
       <div class="bg-gray-800 p-3 rounded-xl text-center text-sm">
         <p>${dayName}</p>
-        <img src="https://openweathermap.org/img/wn/${icon}.png" class="mx-auto" />
-        <p>${Math.round(item.main.temp)}°</p>
+        <img src="https:${icon}" class="mx-auto" />
+        <p>${Math.round(day.day.maxtemp_c)}° / ${Math.round(day.day.mintemp_c)}°</p>
       </div>`;
   });
 }
 
-
-
-// current location weather
-
+/* ===== Auto Location ===== */
 function detectLocation() {
-  if (!navigator.geolocation) {
-    alert("Location not supported");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(position => {
-    const lat = position.coords.latitude;
-    const lon = position.coords.longitude;
-
-    getWeather(lat, lon); 
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    getWeather(`${lat},${lon}`);
   });
 }
 
-// page ko reload karne ke liye
 window.addEventListener("load", detectLocation);
