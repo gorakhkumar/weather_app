@@ -71,10 +71,18 @@ function loadHourly(data) {
     let ampm = hour >= 12 ? "PM" : "AM";
     hour = hour % 12 || 12;
 
+    let icon = h.condition.icon;
+    if (!icon.startsWith("http")) {
+      icon = "https:" + icon;
+    }
+
     container.innerHTML += `
-      <div class="flex justify-between bg-gray-800 p-2 rounded">
+      <div class="flex justify-between bg-gray-800 p-3 rounded-lg">
+    
         <span>${hour} ${ampm}</span>
+        <img src="${icon}" class="w-2 h-2" style="width:26px;height:26px;" alt="icon" />
         <span>${Math.round(h.temp_c)}°</span>
+
       </div>`;
   });
 }

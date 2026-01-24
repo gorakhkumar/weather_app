@@ -14,12 +14,10 @@
   <div class="bg-gradient-to-br from-[#0b1026] to-[#090b1a] min-h-screen text-white pb-10">
 
     <!-- Navbar -->
-    <div class="flex sm:flex-row justify-between items-center gap-4 px-4 sm:px-8 py-6">
-      <div class="text-xl font-semibold">☀ Weather Now</div>
-
-      <button class="bg-gray-700 px-4 py-2 rounded-lg">Units °C</button>
-    </div>
-
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-4 sm:px-8 py-6">
+<div class="text-xl font-semibold title-font">☀️ Weather Now</div>
+<button class="bg-gray-700 px-4 py-2 rounded-lg">Units °C</button>
+</div>
 
     <!-- Heading -->
     <h1 class="text-2xl sm:text-4xl font-bold text-center mt-4 px-4">How’s the sky looking today?</h1>
@@ -38,47 +36,62 @@
     <!-- Main container -->
     <div class="max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 sm:px-6">
 
+      <!-- Left -->
+      <div class="lg:col-span-2">
+        <!-- Weather Card -->
+        <div class="bg-gradient-to-br from-indigo-600 to-blue-500 rounded-2xl p-5 sm:p-6">
+          <h2 id="cityName" class="text-xl sm:text-2xl font-semibold">...</h2>
+          <p id="dateText" class="text-xs sm:text-sm opacity-80">...</p>
 
-      <!-- Weather Card -->
-      <div class="lg:col-span-2 bg-gradient-to-br from-indigo-600 to-blue-500 rounded-2xl p-5 sm:p-6">
-        <h2 id="cityName" class="text-xl sm:text-2xl font-semibold">...</h2>
-        <p id="dateText" class="text-xs sm:text-sm opacity-80">...</p>
-
-
-        <div class="flex justify-between items-center mt-6">
-          <img id="weatherIcon" src="" alt="icon" class="w-16 h-16 sm:w-20 sm:h-20" />
-          <div id="temp" class="text-4xl sm:text-6xl font-bold">20°</div>
+          <div class="flex justify-between items-center mt-6">
+            <img id="weatherIcon" src="" alt="icon" class="w-16 h-16 sm:w-20 sm:h-20" />
+            <div id="temp" class="text-4xl sm:text-6xl font-bold">20°</div>
+          </div>
+        </div>
+        <!-- Stats -->
+        <div class="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 px-4 sm:px-6">
+          <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Feels Like <span id="feels">18°</span></div>
+          <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Humidity <span id="humidity">46%</span></div>
+          <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Wind <span id="wind">14 km/h</span></div>
+          <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Rain <span id="rain">0 mm</span></div>
         </div>
 
-        
+        <!-- Daily forecast -->
+        <div class="max-w-6xl mx-auto mt-8 px-4 sm:px-6">
+          <h3 class="mb-3">Daily Forecast</h3>
+          <div id="daily" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3"></div>
+        </div>
+
       </div>
 
 
-      <!-- Hourly forecast -->
-      <div class="bg-gray-900 rounded-2xl p-4">
-        <h3 class="font-semibold mb-3">Hourly forecast</h3>
-        <div id="hourly" class="space-y-2 text-sm"></div>
+
+
+
+      <!-- Hourly forecast right -->
+
+
+      <div class="bg-gray-900 rounded-2xl p-4 md:p-5">
+        <div class="flex justify-between mb-4 text-sm">
+          <h3 class="font-semibold mb-3">Hourly forecast</h3>
+          <select class="bg-gray-600 rounded px-2 text-sm">
+            <option>Tuesday</option>
+          </select>
+        </div>
+
+        <div id="hourly" class="space-y-2 text-sm  max-h-[200px] overflow-y-auto pr-1"></div>
+
       </div>
+
     </div>
 
 
-    <!-- Stats -->
-    <div class="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 px-4 sm:px-6">
-      <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Feels Like <span id="feels">18°</span></div>
-      <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Humidity <span id="humidity">46%</span></div>
-      <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Wind <span id="wind">14 km/h</span></div>
-      <div class="bg-gray-800 p-3 sm:p-4 rounded-xl text-sm">Rain <span id="rain">0 mm</span></div>
-    </div>
 
 
-    <!-- Daily forecast -->
-    <div class="max-w-6xl mx-auto mt-8 px-4 sm:px-6">
-      <h3 class="mb-3">Daily Forecast</h3>
-      <div id="daily" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3"></div>
-    </div>
 
 
-  </div>
+
+
   </div>
 
   <script src="script.js"></script>
